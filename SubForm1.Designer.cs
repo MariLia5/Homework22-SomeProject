@@ -41,6 +41,9 @@
             dataGridView1 = new DataGridView();
             label6 = new Label();
             btnAdd = new Button();
+            btnUpdate = new Button();
+            btnDelete = new Button();
+            btnClear = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
@@ -164,12 +167,48 @@
             btnAdd.UseVisualStyleBackColor = true;
             btnAdd.Click += btnAdd_Click;
             // 
+            // btnUpdate
+            // 
+            btnUpdate.FlatStyle = FlatStyle.Flat;
+            btnUpdate.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
+            btnUpdate.Location = new Point(187, 405);
+            btnUpdate.Name = "btnUpdate";
+            btnUpdate.Size = new Size(158, 61);
+            btnUpdate.TabIndex = 14;
+            btnUpdate.Text = "Обновить";
+            btnUpdate.UseVisualStyleBackColor = true;
+            // 
+            // btnDelete
+            // 
+            btnDelete.FlatStyle = FlatStyle.Flat;
+            btnDelete.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
+            btnDelete.Location = new Point(351, 405);
+            btnDelete.Name = "btnDelete";
+            btnDelete.Size = new Size(158, 61);
+            btnDelete.TabIndex = 15;
+            btnDelete.Text = "Удалить";
+            btnDelete.UseVisualStyleBackColor = true;
+            // 
+            // btnClear
+            // 
+            btnClear.FlatStyle = FlatStyle.Flat;
+            btnClear.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
+            btnClear.Location = new Point(516, 405);
+            btnClear.Name = "btnClear";
+            btnClear.Size = new Size(158, 61);
+            btnClear.TabIndex = 16;
+            btnClear.Text = "Очистить";
+            btnClear.UseVisualStyleBackColor = true;
+            // 
             // SubForm1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(1065, 505);
+            Controls.Add(btnClear);
+            Controls.Add(btnDelete);
+            Controls.Add(btnUpdate);
             Controls.Add(btnAdd);
             Controls.Add(label6);
             Controls.Add(dataGridView1);
@@ -205,5 +244,8 @@
         private DataGridView dataGridView1;
         private Label label6;
         private Button btnAdd;
+        private Button btnUpdate;
+        private Button btnDelete;
+        private Button btnClear;
     }
 }

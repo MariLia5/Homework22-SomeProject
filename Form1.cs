@@ -6,24 +6,28 @@ namespace SomeProject
     public partial class Form1 : Form
     {
         private SubForm1 subform1;
-        private SubForm2 subform2;
         public static string filename = "DietApp.db";
 
         public Form1()
         {
             InitializeComponent();
-            DBWorker.InitDBSQLite(filename);
+            try
+            {
+                DBWorker.InitDBSQLite(filename);
+                ShowSubForm1();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка инициализации базы данных: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void ShowSubForm1()
         {
             if (subform1 != null && !subform1.IsDisposed)
             {
-                if (subform1.Visible)
-                {
-                    subform1.Hide();
-                }
-                else
+                if (!subform1.Visible)
                 {
                     subform1.Show();
                 }
@@ -39,28 +43,9 @@ namespace SomeProject
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void Form1_Load(object sender, EventArgs e)
         {
-            if (subform2 != null && !subform2.IsDisposed)
-            {
-                if (subform2.Visible)
-                {
-                    subform2.Hide();
-                }
-                else
-                {
-                    subform2.Show();
-                }
-            }
-            else
-            {
-                subform2 = new SubForm2();
-                subform2.TopLevel = false;
-                MainPanel.Controls.Add(subform2);
-                subform2.FormBorderStyle = FormBorderStyle.None;
-                subform2.Dock = DockStyle.Fill;
-                subform2.Show();
-            }
+            ShowSubForm1();
         }
     }
 }

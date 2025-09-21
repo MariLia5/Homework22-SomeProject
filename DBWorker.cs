@@ -56,14 +56,12 @@ namespace SomeProject
             }
         }
 
-        // READ - Получение всех продуктов за день
-        public static List<Product> GetDailyProducts(string filename)
+        // READ - Получение всех продуктов
+        public static List<Product> GetAllProducts(string filename)
         {
             var products = new List<Product>();
             string connString = $"Data Source={GetDbPath(filename)};";
-
-            // Берем продукты только за сегодня
-            string query = "SELECT * FROM Product WHERE date(CreatedDate) = date('now');";
+            string query = "SELECT * FROM Product ORDER BY ProductName;";
 
             try
             {
@@ -94,19 +92,11 @@ namespace SomeProject
             }
         }
 
-        // Получение статистики за день
-        public static Dictionary<string, int> GetDailyStatistics(string filename)
+        // READ - Получение продукта по ID
+        public static Product GetProductById(int id, string filename)
         {
-            var stats = new Dictionary<string, int>();
             string connString = $"Data Source={GetDbPath(filename)};";
-
-            string query = @"SELECT 
-                SUM(Proteins) as TotalProteins,
-                SUM(Fats) as TotalFats, 
-                SUM(Carbs) as TotalCarbs,
-                SUM(Calories) as TotalCalories,
-                COUNT(*) as ProductCount
-                FROM Product WHERE date(CreatedDate) = date('now');";
+            string query = "SELECT * FROM Product WHERE id = @id;";
 
             try
             {
@@ -114,23 +104,80 @@ namespace SomeProject
                 {
                     conn.Open();
                     using (SQLiteCommand cmd = new SQLiteCommand(query, conn))
-                    using (SQLiteDataReader reader = cmd.ExecuteReader())
                     {
-                        if (reader.Read())
+                        cmd.Parameters.AddWithValue("@id", id);
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
                         {
-                            stats.Add("Proteins", reader["TotalProteins"] != DBNull.Value ? Convert.ToInt32(reader["TotalProteins"]) : 0);
-                            stats.Add("Fats", reader["TotalFats"] != DBNull.Value ? Convert.ToInt32(reader["TotalFats"]) : 0);
-                            stats.Add("Carbs", reader["TotalCarbs"] != DBNull.Value ? Convert.ToInt32(reader["TotalCarbs"]) : 0);
-                            stats.Add("Calories", reader["TotalCalories"] != DBNull.Value ? Convert.ToInt32(reader["TotalCalories"]) : 0);
-                            stats.Add("Count", reader["ProductCount"] != DBNull.Value ? Convert.ToInt32(reader["ProductCount"]) : 0);
+                            if (reader.Read())
+                            {
+                                return new Product(
+                                    id: Convert.ToInt32(reader["id"]),
+                                    name: reader["ProductName"].ToString(),
+                                    prot: Convert.ToInt32(reader["Proteins"]),
+                                    fats: Convert.ToInt32(reader["Fats"]),
+                                    carbs: Convert.ToInt32(reader["Carbs"]),
+                                    calories: Convert.ToInt32(reader["Calories"])
+                                );
+                            }
                         }
                     }
                 }
-                return stats;
+                return null;
             }
             catch (Exception ex)
             {
-                throw new Exception($"Ошибка получения статистики: {ex.Message}");
+                throw new Exception($"Ошибка загрузки продукта: {ex.Message}");
+            }
+        }
+        public static void UpdateProduct(Product product, string filename)
+        {
+            string connString = $"Data Source={GetDbPath(filename)};";
+            string query = "UPDATE Product SET ProductName = @name, Proteins = @prot, " +
+                           "Fats = @fats, Carbs = @carbs, Calories = @calories WHERE id = @id;";
+
+            try
+            {
+                using (SQLiteConnection conn = new SQLiteConnection(connString))
+                {
+                    conn.Open();
+                    using (SQLiteCommand cmd = new SQLiteCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@name", product.ProductName);
+                        cmd.Parameters.AddWithValue("@prot", product.Proteins);
+                        cmd.Parameters.AddWithValue("@fats", product.Fats);
+                        cmd.Parameters.AddWithValue("@carbs", product.Carbs);
+                        cmd.Parameters.AddWithValue("@calories", product.Calories);
+                        cmd.Parameters.AddWithValue("@id", product.Id);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Ошибка обновления продукта: {ex.Message}");
+            }
+        }
+
+        public static void DeleteProduct(int id, string filename)
+        {
+            string connString = $"Data Source={GetDbPath(filename)};";
+            string query = "DELETE FROM Product WHERE id = @id;";
+
+            try
+            {
+                using (SQLiteConnection conn = new SQLiteConnection(connString))
+                {
+                    conn.Open();
+                    using (SQLiteCommand cmd = new SQLiteCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Ошибка удаления продукта: {ex.Message}");
             }
         }
 
@@ -147,8 +194,7 @@ namespace SomeProject
                     Proteins INT NOT NULL,
                     Fats INT NOT NULL,
                     Carbs INT NOT NULL,
-                    Calories INT NOT NULL,
-                    CreatedDate DATETIME DEFAULT CURRENT_TIMESTAMP);";
+                    Calories INT NOT NULL);";
         }
     }
 }
